@@ -21,6 +21,12 @@ Escribe una consulta que calcule y devuelva una columna llamada `que_donde` que 
 
 Solución:
 ```sql
+select Upper(genero) || ' ' || Lower(pais) as que_donde,
+round(me_gusta *100.0 / reproducciones, 1) as porcentaje_me_gusta
+from cancion
+where idioma != 'ES' 
+order by porcentaje_me_gusta desc
+limit 10;
 
 
 ```
@@ -167,7 +173,16 @@ Para emitir una canción en la radio hay que añadirle una cuña publicitaria. E
 
 Solución:
 ```sql
-
+select distinct titulo, pais, duracion,
+case 
+    when pais = 'Reino Unido' then round((duracion + 30.0)/60,2)
+    when pais = 'España' then round((duracion + 45.0)/60,2)
+	else NULL
+end as duracion_radio_min
+from cancion
+order by duracion desc
+limit 20;
+ 
 
 ```
 
@@ -371,8 +386,9 @@ Escribe una consulta para encontrar las canciones (`cancion`) cuya duración (`d
 
 Solución:
 ```sql
-
-
+select *
+from cancion
+where idioma is NULL and duracion is not NULL;
 ```
 
 Resultado:
@@ -471,8 +487,10 @@ Escribe una consulta que devuelva todas las columnas de las canciones y añada u
 
 Solución:
 ```sql
-
-
+select *, coalesce(duracion, reproducciones, me_gusta, valoracion, -1) as primer_dato
+from cancion
+order by id_cancion desc
+limit 10;
 ```
 
 Resultado:
@@ -582,6 +600,9 @@ Escribe una consulta que cuente las canciones que **no** están en inglés, cont
 Solución:
 
 ```sql
+select count(*) as no_ingles
+from cancion
+where idioma != 'EN' or idioma is NULL;
 ```
 
 Resultado:
@@ -653,8 +674,9 @@ Salida:
 
 Solución:
 ```sql
-
-
+select avg(reproducciones)
+from cancion
+where reproducciones > 1000000;
 ```
 
 Resultado:
@@ -693,8 +715,8 @@ Salida:
 
 Solución:
 ```sql
-
-
+select count (distinct anio) as anios_distintos
+from cancion;
 ```
 
 Resultado:
@@ -763,8 +785,9 @@ Escribe una consulta que muestre cada año de publicación (`anio`) distinto en 
 
 Solución:
 ```sql
-
-
+select anio, count(*) as canciones_mismo_anio
+from cancion
+group by anio;
 ```
 
 Resultado:
@@ -880,8 +903,11 @@ Escribe una consulta que cuente el número de canciones de cada una de las sigui
 
 Solución:
 ```sql
-
-
+select 
+count(case when duracion < 200 then 1 end) as corta,
+count(case when duracion >= 200 and duracion <= 300 then 1 end) as media,
+count(case when duracion > 300 then 1 end) as larga
+from cancion;
 ```
 
 Resultado:
