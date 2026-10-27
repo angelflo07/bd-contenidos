@@ -27,7 +27,10 @@ Escribe una consulta que utilice un filtro para calcular simultáneamente el nú
 
 Solución:
 ```sql
-
+select 
+round(avg(case when reproducciones>100000000 then reproducciones end), 2) as media_exitos,
+round(avg(case when reproducciones<1000000 then reproducciones end), 2) as media_minoritarias
+from cancion;
 ```
 
 Resultado:
@@ -189,7 +192,27 @@ $FAMILIAR$(empleado, nombre, sexo, fechaNac, relación\*)
 
 Solución:
 ```sql
+drop table if exists FAMILIAR;
 
+create table FAMILIAR (
+  empleado text not null,
+  nombre text not null,
+  sexo text not null,
+  fechaNac text not null,
+  relacion text not null)strict;
+
+insert into FAMILIAR (empleado, nombre, sexo, fechaNac, relacion) 
+
+values ('333445555', 'Alicia', 'F', '1986-04-06', 'Hija'),
+('333445555', 'Teodoro', 'M', '1983-10-25', 'Hijo'),
+('333445555', 'Luisa', 'F', '1958-05-03', 'Esposa'),
+('987654321', 'Alfonso', 'M', '1942-02-28', 'Esposo'),
+('123456789', 'Miguel', 'M', '1988-01-04', 'Hijo'),
+('123456789', 'Alice', 'F', '1988-12-30', 'Hija'),
+('123456789', 'Elisa', 'F', '1967-05-05', 'Esposa');
+
+select * from FAMILIAR
+where sexo = 'M'; 
 ```
 
 Tabla resultado:
@@ -247,7 +270,29 @@ Reescribe la definición de la tabla de `FAMILIAR` para agregar las siguientes r
 
 Solución
 ```sql
+drop table if exists FAMILIAR;
 
+create table FAMILIAR (
+  empleado text not null,
+  nombre text not null,
+  sexo text not null check (sexo in ('M', 'F', 'O')),
+  fechaNac text not null,
+  relacion text check (relacion in ('Hijo', 'Hija', 'Conyuge','Hermano', 'Hermana')))strict;
+
+insert into FAMILIAR (empleado, nombre, sexo, fechaNac, relacion) 
+
+values ('333445555', 'Alicia', 'F', '1986-04-06', 'Hija'),
+('333445555', 'Teodoro', 'M', '1983-10-25', 'Hijo'),
+('333445555', 'Luisa', 'F', '1958-05-03', 'Conyuge'),
+('987654321', 'Alfonso', 'M', '1942-02-28', 'Conyuge'),
+('123456789', 'Miguel', 'M', '1988-01-04', 'Hijo'),
+('123456789', 'Alice', 'F', '1988-12-30', 'Hija'),
+('123456789', 'Elisa', 'F', '1967-05-05', 'Conyuge');
+
+SELECT 
+    Lower(tbl_name) as name, 
+    Lower(REPLACE(REPLACE(REPLACE(REPLACE(sql, ' ', ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), '')) as sql
+from sqlite_schema where type='table' and Lower(name)='familiar';
 ```
 
 Para verificar tu respuesta, selecciona su definición de la tabla sqlite_schema mediante la siguiente consulta:
@@ -433,7 +478,24 @@ En caso de ser una sola columna, crea una restricción a nivel de columna.
 
 Solución:
 ```sql
+drop table if exists EMPLEADO;
 
+create table EMPLEADO (
+  nombre text not null,
+  apellido1 text not null,
+  apellido2 text,
+  dni text primary key not null,
+  fechaNac text not null,
+  direccion text,
+  sexo text  not null,
+  sueldo real  not null,
+  supervisor text,
+  dpto integer  not null)strict;
+  
+  SELECT 
+    Lower(tbl_name) as name, 
+    Lower(REPLACE(REPLACE(REPLACE(REPLACE(sql, ' ', ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), '')) as sql
+from sqlite_schema where type='table' and Lower(name)='empleado';
 ```
 
 Para verificar tu respuesta, selecciona su definición de la tabla sqlite_schema mediante la siguiente consulta:
@@ -704,7 +766,22 @@ Reescribe la definición de la tabla de `FAMILIAR` para agregar su clave primari
 
 Solución
 ```sql
+drop table if exists FAMILIAR;
 
+create table FAMILIAR (
+  empleado text not null,
+  nombre text not null,
+  sexo text not null check (sexo in ('M', 'F', 'O')),
+  fechaNac text not null,
+  relacion text check (relacion in ('Hijo', 'Hija', 'Conyuge','Hermano', 'Hermana')),
+  primary key(empleado, nombre),
+  foreign key (empleado) references EMPLEADO(dni) on update cascade on delete cascade
+)strict;
+
+SELECT 
+    Lower(tbl_name) as name, 
+    Lower(REPLACE(REPLACE(REPLACE(REPLACE(sql, ' ', ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), '')) as sql
+from sqlite_schema where type='table' and Lower(name)='familiar';
 ```
 
 Para verificar tu respuesta, selecciona su definición de la tabla sqlite_schema mediante la siguiente consulta:
@@ -858,7 +935,30 @@ Elimina la columna `valoracion` de la tabla `UBICACION`  (anteriormente, `LOCALI
 
 Solución:
 ```sql
+-- 1. Limpiar ejecuciones previas para evitar conflictos de columna duplicada
+DROP TABLE IF EXISTS UBICACION;
+DROP TABLE IF EXISTS LOCALIZACIONES_DPTO;
 
+-- 2. Crear la tabla original con la columna valoracion y el comentario exacto de la PK
+CREATE TABLE LOCALIZACIONES_DPTO (
+  dpto INTEGER NOT NULL,
+  ubicacion TEXT NOT NULL,
+  valoracion INTEGER NOT NULL DEFAULT 0 CHECK (valoracion > -1 AND valoracion < 6),
+  PRIMARY KEY (dpto, ubicacion) -- primary key implica not null
+) STRICT;
+
+-- 3. Renombrar la tabla
+ALTER TABLE LOCALIZACIONES_DPTO RENAME TO UBICACION;
+
+-- 4. Eliminar la columna 'valoracion'
+ALTER TABLE UBICACION DROP COLUMN valoracion;
+
+-- 5. Consulta de verificación del autocorrector
+SELECT 
+    Lower(tbl_name) as name, 
+    Lower(REPLACE(REPLACE(REPLACE(REPLACE(sql, ' ', ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), '')) as sql
+FROM sqlite_schema 
+WHERE type='table' AND Lower(name)='ubicacion';
 ```
 
 Para verificar tu respuesta, selecciona su definición de la tabla sqlite_schema mediante la siguiente consulta:
