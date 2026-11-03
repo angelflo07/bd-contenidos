@@ -26,7 +26,10 @@ Escribe una consulta que muestre el nombre, apellido1 y sueldo de los empleados 
 
 Solución:
 ```sql
-
+SELECT nombre, apellido1, sueldo
+FROM EMPLEADO
+WHERE sueldo between 25000 and 40000 and (nombre like 'A%' or nombre like 'J%')
+order by sueldo desc, nombre asc;
 ```
 
 **Tabla resultado:**
@@ -52,7 +55,12 @@ Escribe una consulta que muestre, para cada departamento, el número de empleado
 
 Solución:
 ```sql
-
+select dpto, count (*) as num_empleados, sum (sueldo) as sueldo_total
+from EMPLEADO
+GROUP BY dpto
+having count (*) > 1
+order by sueldo_total desc;
+  
 ```
 
 **Tabla resultado:**
@@ -76,7 +84,17 @@ Escribe una consulta que muestre el nombre y apellido1 del empleado, el nombre d
 
 Solución:
 ```sql
-
+select 
+	e.nombre as nombre_empleado,
+	e.apellido1,
+	p.nombre as nombre_proyecto,
+	d.nombre as nombre_departamento
+from empleado e 
+join trabaja_en t on e.dni = t.empleado
+join proyecto p on t.proyecto = p.numero
+join departamento d on p.dpto = d.numero
+where e.apellido1 like 'P%'
+order by nombre_empleado asc;
 ```
 
 **Tabla resultado:**
@@ -106,7 +124,16 @@ Ordena por número de empleados descendente.
 
 Solución:
 ```sql
-
+select 
+	case 
+	when sueldo < 30000 then 'Junior'
+	when sueldo between 30000 and 45000 then 'Senior'
+	when sueldo > 45000 then 'Executive'
+	end as categoria_salarial,
+	count (*) as num_empleados
+from empleado
+group by categoria_salarial
+order by num_empleados desc;
 ```
 
 **Tabla resultado:**
@@ -136,7 +163,20 @@ Ordena por total de horas descendente y, luego, alfabéticamente por apellido y 
 
 Solución:
 ```sql
-
+with horas_empleado as (
+  select 
+  	empleado,
+  	sum(horas) as total_horas
+  from trabaja_en
+  group by empleado
+  )
+  select e.nombre,
+  e.apellido1,
+  h.total_horas
+  from empleado e
+  join horas_empleado h on e.dni = h.empleado
+  where h.total_horas > 30
+  order by h.total_horas desc, e.apellido1 asc, e.nombre asc;
 ```
 
 **Tabla resultado:**
@@ -165,7 +205,18 @@ Escribe una consulta que muestre el nombre de los departamentos que tienen al me
 
 Solución:
 ```sql
-
+SELECT 
+    d.nombre AS nombre_departamento
+FROM DEPARTAMENTO d
+WHERE EXISTS (
+    SELECT 1
+    FROM EMPLEADO e
+    JOIN TRABAJA_EN t ON e.dni = t.empleado
+    WHERE e.dpto = d.numero
+    GROUP BY e.dni
+    HAVING COUNT(*) > 1
+)
+ORDER BY nombre_departamento ASC;
 ```
 
 **Tabla resultado:**
