@@ -260,6 +260,53 @@ Con todo esto, en nuestro diagrama ER tendremos que:
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar asegúrate de estar entendiendo cómo se está representando gráficamente todo.
 
+Solución:
+	entity Centro{
+	codigo key
+    nombre
+    coordenadas
+    fecha_creacion
+}
+entity Planeta{
+	codigo key
+    nombre
+    numero_lunas
+    rotacion_horas 
+    orbita_dias
+}
+entity Mineral{
+	codigo key
+    nombre
+    descripcion
+}
+entity Nave_Espacial{
+	matricula key
+    modelo 
+    capacidad
+}
+weak entity Vuelo{
+	fecha_inicio partial-key 
+    hora_inicio partial-key
+    fecha_fin
+    hora_fin
+}
+weak relationship realizado_por{
+	Vuelo [0..N] -> Nave_Espacial [1..1]
+}
+relationship ubicado_en{
+	Centro[1..N] -> Planeta [1..1]
+ }
+ relationship es_principal_en{
+ 	Planeta[0..1] -> Centro [1..1]
+}
+relationship encontrado_por{
+	Centro [0..N] -> Mineral [0..N]
+    fecha_hallazgo
+}
+relationship asignada_a {
+	Nave_Espacial [0..N] -> Planeta [1..1] 
+}
+
 ---
 
 ### Ejercicio 07 - Enunciado ER 02 The Expanse Simplificado  (5)
