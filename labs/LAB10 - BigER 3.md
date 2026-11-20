@@ -550,6 +550,39 @@ Fíjate en que la etapa actual y las etapas completadas son dos relaciones disti
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
 
+Solución:
+
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
+
 ---
 ### Ejercicio 09 - Enunciado ER 07 Naves no tripuladas de la OPA (2)
 
@@ -572,6 +605,56 @@ Después, nos dicen que cada nave tiene un ingeniero aeroespacial responsable. E
 - La relación **responsable_de** entre Nave e Ingeniero_Aeroespacial. Por lo que nos dice el enunciado, cada nave tiene un único ingeniero aeroespacial responsable, y cada ingeniero aeroespacial solo es responsable de esa nave.
 
 ¿Y el resto de categorías (astronautas, directivos, mecánicos...)? No tienen ningún dato ni relación propios, así que no crearemos subclases para ellas: serían subclases vacías, y la categoría ya queda recogida en el atributo `categoria_profesional`.
+
+Solución:
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+entity Empleado{
+	numero_empleado key
+    nombre
+    apellido_1
+    apellido_2
+    categoria_profesional
+}
+
+hierarchy por_tipo_empleado Empleado partial  
+
+entity Ingeniero_Aeroespacial extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship responsable_de{
+	Nave[1..1]-> Ingeniero_Aeroespacial[1..1]
+}
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
 
@@ -604,6 +687,77 @@ La pregunta clave es: ¿de qué entidad o entidades depende Asignacion_Historica
 Fíjate en que, igual que en el ejemplo de la Asignación Departamental de Empleados del Tema 5, mantenemos la relación con la asignación actual aunque podría deducirse del histórico: así el histórico solo guarda asignaciones terminadas, y no tendremos fechas de fin vacías en todas las asignaciones en curso.
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
+
+Solución:
+
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+weak relationship es_de{
+	Ingeniero_Software[1..1]->Asignacion_Historica[0..N]
+}
+relationship ha_tenido{
+		Nave[1..1]->Asignacion_Historica[0..N]
+}
+entity Ingeniero_Software extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship asignado_a{
+	Ingeniero_Software[1..N]->Nave[1..1]
+    fecha_desde
+}
+weak entity Asignacion_Historica{
+	fecha_inicio partial-key
+    fecha_fin
+}
+
+
+entity Empleado{
+	numero_empleado key
+    nombre
+    apellido_1
+    apellido_2
+    categoria_profesional
+}
+
+hierarchy por_tipo_empleado Empleado partial disjoint
+
+entity Ingeniero_Aeroespacial extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship responsable_de{
+	Nave[1..1]-> Ingeniero_Aeroespacial[1..1]
+}
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
 
 ---
 ### Ejercicio 11 - Enunciado ER 07 Naves no tripuladas de la OPA (4)
@@ -638,6 +792,118 @@ Después vienen las pruebas extraplanetarias, que tienen datos y relaciones prop
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
 
+Solución:
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+hierarchy por_tipo_prueba Prueba partial
+
+relationship es_controlada_por{
+	Prueba_Extraplanetaria[1..N] -> Astronauta_Probador[1..1]}
+
+entity Astronauta_Probador extends por_tipo_empleado{
+	numero_empleado key
+}	
+
+entity Prueba_Extraplanetaria extends por_tipo_prueba{
+    kilometros_recorridos
+    consumo_combustible
+    numero_prueba key
+ }
+	
+
+relationship utiliza{
+	Prueba[0..N]->Prototipo[1..1]
+}
+relationship supervisada_por{
+	Prueba[0..N]->Empleado[1..1]
+}
+
+
+entity Prototipo{
+	numero_serie key
+    numero_transpondedor unique
+    fecha_fabricacion
+}
+
+entity Prueba{
+	numero_prueba key
+    tipo
+    fecha
+    hora
+    duracion
+    informe
+ }
+ relationship es_prototipo_de{
+ 	Prototipo[0..N]->Nave[1..1]
+ }
+
+weak relationship es_de{
+	Ingeniero_Software[1..1]->Asignacion_Historica[0..N]
+}
+relationship ha_tenido{
+		Nave[1..1]->Asignacion_Historica[0..N]
+}
+entity Ingeniero_Software extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship asignado_a{
+	Ingeniero_Software[1..N]->Nave[1..1]
+    fecha_desde
+}
+weak entity Asignacion_Historica{
+	fecha_inicio partial-key
+    fecha_fin
+}
+
+
+entity Empleado{
+	numero_empleado key
+    nombre
+    apellido_1
+    apellido_2
+    categoria_profesional
+}
+
+hierarchy por_tipo_empleado Empleado partial disjoint
+
+entity Ingeniero_Aeroespacial extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship responsable_de{
+	Nave[1..1]-> Ingeniero_Aeroespacial[1..1]
+}
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
+
 ---
 ### Ejercicio 12 - Enunciado ER 07 Naves no tripuladas de la OPA (5)
 
@@ -654,6 +920,130 @@ La frase clave es _"el número de incidencia dentro de cada prueba en particular
 - Depende de Prueba a través de la relación débil **sufre**. Cada incidencia es de una sola prueba, y en una prueba puede no haberse producido ninguna incidencia, o varias.
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
+
+Solución:
+
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+weak relationship sufre{
+	Prueba[1..1]->Incidencia[0..N]}
+
+weak entity Incidencia{
+	numero_incidencia partial-key
+    descripcion
+    fecha
+    hora
+    grado_gravedad
+}
+
+hierarchy por_tipo_prueba Prueba partial
+
+relationship es_controlada_por{
+	Prueba_Extraplanetaria[1..N] -> Astronauta_Probador[1..1]}
+
+entity Astronauta_Probador extends por_tipo_empleado{
+	numero_empleado key
+}	
+
+entity Prueba_Extraplanetaria extends por_tipo_prueba{
+    kilometros_recorridos
+    consumo_combustible
+    numero_prueba key
+ }
+	
+
+relationship utiliza{
+	Prueba[0..N]->Prototipo[1..1]
+}
+relationship supervisada_por{
+	Prueba[0..N]->Empleado[1..1]
+}
+
+
+entity Prototipo{
+	numero_serie key
+    numero_transpondedor unique
+    fecha_fabricacion
+}
+
+entity Prueba{
+	numero_prueba key
+    tipo
+    fecha
+    hora
+    duracion
+    informe
+ }
+ relationship es_prototipo_de{
+ 	Prototipo[0..N]->Nave[1..1]
+ }
+
+weak relationship es_de{
+	Ingeniero_Software[1..1]->Asignacion_Historica[0..N]
+}
+relationship ha_tenido{
+		Nave[1..1]->Asignacion_Historica[0..N]
+}
+entity Ingeniero_Software extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship asignado_a{
+	Ingeniero_Software[1..N]->Nave[1..1]
+    fecha_desde
+}
+weak entity Asignacion_Historica{
+	fecha_inicio partial-key
+    fecha_fin
+}
+
+
+entity Empleado{
+	numero_empleado key
+    nombre
+    apellido_1
+    apellido_2
+    categoria_profesional
+}
+
+hierarchy por_tipo_empleado Empleado partial disjoint
+
+entity Ingeniero_Aeroespacial extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship responsable_de{
+	Nave[1..1]-> Ingeniero_Aeroespacial[1..1]
+}
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
 
 ---
 ### Ejercicio 13 - Enunciado ER 07 Naves no tripuladas de la OPA (6)
@@ -678,6 +1068,144 @@ Y sus relaciones con otras entidades:
 Fíjate en que Incidencia, aunque sea una entidad débil, puede participar en otras relaciones como cualquier otra entidad.
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
+
+Solución:
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+
+relationship debida_a{
+	Revision[0..N]-> Incidencia[0..N]}
+
+relationship realizada_por{
+	Revision[0..N]-> Empleado[1..N]}
+
+weak entity Revision{
+	fecha_revision partial-key
+    informe
+}
+
+
+weak relationship pasa{
+	Prototipo[1..1]->Revision[0..N]}
+
+weak relationship sufre{
+	Prueba[1..1]->Incidencia[0..N]}
+
+weak entity Incidencia{
+	numero_incidencia partial-key
+    descripcion
+    fecha
+    hora
+    grado_gravedad
+}
+
+hierarchy por_tipo_prueba Prueba partial
+
+relationship es_controlada_por{
+	Prueba_Extraplanetaria[1..N] -> Astronauta_Probador[1..1]}
+
+entity Astronauta_Probador extends por_tipo_empleado{
+	numero_empleado key
+}	
+
+entity Prueba_Extraplanetaria extends por_tipo_prueba{
+    kilometros_recorridos
+    consumo_combustible
+    numero_prueba key
+ }
+	
+
+relationship utiliza{
+	Prueba[0..N]->Prototipo[1..1]
+}
+relationship supervisada_por{
+	Prueba[0..N]->Empleado[1..1]
+}
+
+
+entity Prototipo{
+	numero_serie key
+    numero_transpondedor unique
+    fecha_fabricacion
+}
+
+entity Prueba{
+	numero_prueba key
+    tipo
+    fecha
+    hora
+    duracion
+    informe
+ }
+ relationship es_prototipo_de{
+ 	Prototipo[0..N]->Nave[1..1]
+ }
+
+weak relationship es_de{
+	Ingeniero_Software[1..1]->Asignacion_Historica[0..N]
+}
+relationship ha_tenido{
+		Nave[1..1]->Asignacion_Historica[0..N]
+}
+entity Ingeniero_Software extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship asignado_a{
+	Ingeniero_Software[1..N]->Nave[1..1]
+    fecha_desde
+}
+weak entity Asignacion_Historica{
+	fecha_inicio partial-key
+    fecha_fin
+}
+
+
+entity Empleado{
+	numero_empleado key
+    nombre
+    apellido_1
+    apellido_2
+    categoria_profesional
+}
+
+hierarchy por_tipo_empleado Empleado partial disjoint
+
+entity Ingeniero_Aeroespacial extends por_tipo_empleado{
+	numero_empleado key
+}
+
+relationship responsable_de{
+	Nave[1..1]-> Ingeniero_Aeroespacial[1..1]
+}
+
+entity Nave{
+	codigo_nave key
+    nombre
+    peso
+    longitud
+    anchura
+    velocidad_teorica
+    capacidad_prevista
+ }
+ entity Etapa_Desarrollo{
+ 	codigo_etapa key
+    nombre_etapa
+}
+relationship en_etapa_actual{
+	Nave[0..N]->Etapa_Desarrollo[1..1]
+    fecha_desde
+}
+relationship completada_por{
+	Nave[0..N]->Etapa_Desarrollo[0..N]
+    fecha_inicio
+    fecha_fin
+}
+relationship evoluciona_de{
+	Nave[0..1 | "Original"]->Nave[0..N | "Derivado"]
+}
+```
 
 ---
 
