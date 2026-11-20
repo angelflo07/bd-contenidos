@@ -360,6 +360,151 @@ Las dos subclases solo se distinguen del resto del Personal por sus relaciones:
 
 Escribe el texto BigER necesario para modelar todo esto y visualiza el resultado en el diagrama en VS Code. Antes de continuar, asegúrate de entender cómo se está representando gráficamente todo.
 
+Solución:
+
+```
+erdiagram EjemploNotacionBigEr
+notation = crowsfoot
+hierarchy por_tipo_vehiculo Vehiculo partial
+hierarchy por_tipo_personal Personal partial disjoint
+
+entity Directivo extends por_tipo_personal{
+	numero_personal key}
+
+entity Astronauta extends por_tipo_personal{
+	numero_personal key
+    }
+
+relationship pilota{
+	Vuelo[0..N]->Astronauta[1..N]}
+    
+entity Personal{
+	numero_personal key
+    pasaporte unique 
+    nombre_completo
+    fecha_alta
+    puesto
+}
+relationship trabaja_en{
+	Personal[1..N]->Centro[1..1]
+}
+relationship coordina{
+	Directivo[1..1]->Centro[0..1]
+    fecha_inicio
+    }
+
+
+	
+entity Vehiculo{
+	matricula key
+    modelo
+}
+
+entity Clase_Mineral{
+	codigo key
+    nombre
+}
+relationship agrupa_a{
+	Mineral[1..N]-> Clase_Mineral[1..1]
+}
+relationship relacionado_con{
+	Mineral[0..N | "Mineral_A"] -> Mineral [0..N | "Mineral_B"]}
+
+entity Centro{
+   codigo key
+   nombre 
+   coordenadas
+   fecha_creacion
+}
+
+entity Planeta{
+   codigo key
+   nombre 
+   numero_lunas
+   rotacion_horas
+   orbita_dias
+}
+
+entity Mineral{
+   codigo key
+   nombre
+   descripcion
+}
+
+entity Nave_Espacial extends por_tipo_vehiculo{
+   matricula key
+   
+   capacidad
+}
+
+weak entity Vuelo{
+   fecha_inicio partial-key
+   hora_inicio partial-key
+   fecha_fin
+   hora_fin
+}
+
+weak entity Cargamento{
+   codigo partial-key
+   fecha_empaquetado
+}
+
+weak entity Historico_Extraccion{
+   fecha partial-key
+   cantidad
+}
+
+weak relationship extraido_por{
+   Historico_Extraccion[0..N] -> Centro[1..1]
+}
+
+weak relationship incluido_en{
+   Historico_Extraccion[0..N] -> Mineral[1..1]
+}
+
+relationship ubicado_en{
+   Centro[1..N] -> Planeta[1..1]
+}
+
+relationship es_principal_en{
+   Centro[1..1] -> Planeta[0..1]
+}
+
+relationship encontrado_por{
+   Centro[0..N] -> Mineral[0..N]
+   fecha_hallazgo
+}
+
+relationship asignado_a{
+	Vehiculo[0..N] -> Planeta[1..1]
+}
+
+weak relationship realizado_por{
+   Nave_Espacial[1..1] -> Vuelo[0..N]
+}
+
+relationship origen_de{
+   Vuelo[0..N] -> Centro[1..1]
+}
+
+relationship destino_de{
+   Vuelo[0..N] -> Centro[1..1]
+}
+
+relationship forma_parte_de{
+   Cargamento[0..N] -> Mineral[1..1]
+   cantidad
+}
+
+relationship transportado_en{
+   Cargamento[1..N] -> Vuelo[0..1]
+}
+
+weak relationship empaquetado_en{
+   Cargamento[0..N] -> Centro[1..1]
+}
+```
+
 ---
 
 ¡Enhorabuena! Has modelado correctamente el diagrama Entidad Relación para el enunciado Enunciado 04 ER The Expanse Completo.
